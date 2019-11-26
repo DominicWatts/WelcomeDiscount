@@ -120,7 +120,8 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
 
                 $rule =  $this->ruleInterfaceFactory
                     ->create()
-                    ->setName((string) __("10% discount for %1 : %2",
+                    ->setName((string) __(
+                        "10% discount for %1 : %2",
                         $customer->getId(),
                         $customer->getEmail()
                     ))
