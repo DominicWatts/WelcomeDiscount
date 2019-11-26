@@ -1,0 +1,23 @@
+{
+    "name": "dominicwatts/welcomediscount",
+    "description": "Generate customer specific coupon on registration",
+    "type": "magento2-module",
+    "license": "proprietary",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "email": "dominic@xigen.co.uk",
+            "name": "Dominic Xigen"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Xigen\\Voucher\\": ""
+        },
+        "files": [
+            "registration.php"
+        ]
+    }
+}
