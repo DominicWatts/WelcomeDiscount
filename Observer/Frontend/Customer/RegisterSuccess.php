@@ -6,9 +6,9 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Math\Random;
 use Magento\SalesRule\Api\CouponRepositoryInterface;
+use Magento\SalesRule\Api\Data\CouponGenerationSpecInterfaceFactory;
 use Magento\SalesRule\Api\Data\RuleInterface;
 use Magento\SalesRule\Api\Data\RuleInterfaceFactory;
-use Magento\SalesRule\Api\Data\CouponGenerationSpecInterfaceFactory;
 use Magento\SalesRule\Api\RuleRepositoryInterface;
 use Magento\SalesRule\Model\CouponFactory;
 use Magento\SalesRule\Model\RuleFactory;
@@ -125,7 +125,6 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
     ) {
         if ($event = $observer->getEvent()) {
             if ($customer = $event->getCustomer()) {
-               
                 $rule =  $this->ruleInterfaceFactory
                     ->create()
                     ->setName((string) __(
@@ -186,6 +185,7 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
      * Update customer record with generated voucher code
      * @param string couponCode
      * @param int $customerId
+     * @param mixed $couponCode
      * @return void
      */
     public function updateCustomer($couponCode, $customerId)
