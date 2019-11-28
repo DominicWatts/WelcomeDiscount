@@ -3,4 +3,4 @@
  * @var \Xigen\Voucher\Block\Voucher
  */
 ?>
-<?= $block->getVoucherCode() ?>
+<?= $block->escapeHtml($block->getVoucherCode()) ?>
