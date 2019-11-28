@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Xigen\Voucher\Rewrite\Magento\Newsletter\Controller\Subscriber;
 
 use Magento\Customer\Api\AccountManagementInterface as CustomerAccountManagement;
@@ -12,11 +11,10 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Framework\Validator\EmailAddress as EmailValidator;
-use Magento\Newsletter\Controller\Subscriber as SubscriberController;
 use Magento\Newsletter\Model\Subscriber;
+use Magento\Newsletter\Model\SubscriberFactory;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Newsletter\Model\SubscriberFactory;
 
 /**
  * All protected and private methods - just overwrote whole lot in the end
