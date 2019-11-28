@@ -2,12 +2,13 @@
 
 namespace Xigen\Voucher\Observer\Frontend\Customer;
 
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Math\Random;
 use Magento\SalesRule\Api\CouponRepositoryInterface;
-use Magento\SalesRule\Api\Data\CouponGenerationSpecInterfaceFactory;
 use Magento\SalesRule\Api\Data\RuleInterface;
 use Magento\SalesRule\Api\Data\RuleInterfaceFactory;
+use Magento\SalesRule\Api\Data\CouponGenerationSpecInterfaceFactory;
 use Magento\SalesRule\Api\RuleRepositoryInterface;
 use Magento\SalesRule\Model\CouponFactory;
 use Magento\SalesRule\Model\RuleFactory;
@@ -70,6 +71,11 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
     private $ruleInterfaceFactory;
 
     /**
+     * @var CustomerRepositoryInterface
+     */
+    private $customerRepositoryInterface;
+
+    /**
      * RegisterSuccess constructor.
      * @param LoggerInterface $logger
      * @param RuleRepositoryInterface $ruleRepositoryInterface
@@ -81,6 +87,7 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
      * @param Random $random
      * @param CouponGenerationSpecInterfaceFactory $couponGenerationSpecInterfaceFactory
      * @param CouponManagementService $couponManagementService
+     * @param CustomerRepositoryInterface $customerRepositoryInterface
      */
     public function __construct(
         LoggerInterface $logger,
@@ -92,7 +99,8 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
         CouponRepositoryInterface $couponRepositoryInterface,
         Random $random,
         CouponGenerationSpecInterfaceFactory $couponGenerationSpecInterfaceFactory,
-        CouponManagementService $couponManagementService
+        CouponManagementService $couponManagementService,
+        CustomerRepositoryInterface $customerRepositoryInterface
     ) {
         $this->logger = $logger;
         $this->ruleRepositoryInterface = $ruleRepositoryInterface;
@@ -104,6 +112,7 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
         $this->random = $random;
         $this->couponGenerationSpecInterfaceFactory = $couponGenerationSpecInterfaceFactory;
         $this->couponManagementService = $couponManagementService;
+        $this->customerRepositoryInterface = $customerRepositoryInterface;
     }
 
     /**
@@ -116,12 +125,11 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
     ) {
         if ($event = $observer->getEvent()) {
             if ($customer = $event->getCustomer()) {
-                $this->logger->addDebug($customer->getId());
-
+               
                 $rule =  $this->ruleInterfaceFactory
                     ->create()
                     ->setName((string) __(
-                        "10% discount for %1 : %2",
+                        "10 off first order for %1 : %2",
                         $customer->getId(),
                         $customer->getEmail()
                     ))
@@ -133,14 +141,16 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
                     ->setUsesPerCustomer(1)
                     ->setUsesPerCoupon(1)
                     ->setCouponType(RuleInterface::COUPON_TYPE_SPECIFIC_COUPON)
-                    ->setSimpleAction(RuleInterface::DISCOUNT_ACTION_BY_PERCENT)
+                    ->setSimpleAction(RuleInterface::DISCOUNT_ACTION_FIXED_AMOUNT_FOR_CART)
                     ->setDiscountAmount(10)
                     ->setIsActive(true);
                 
                 try {
                     $salesRule = $this->ruleRepositoryInterface->save($rule);
                     if ($salesRule && $salesRule->getRuleId()) {
-                        $this->createCouponCode($salesRule);
+                        if ($couponCode = $this->createCouponCode($salesRule)) {
+                            $this->updateCustomer($couponCode, $customer->getId());
+                        }
                     }
                 } catch (\Exception $e) {
                     $this->logger->critical($e);
@@ -156,7 +166,7 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
      */
     private function createCouponCode(RuleInterface $rule)
     {
-        $couponCode = $this->random->getRandomString(8);
+        $couponCode = $this->random->getRandomString(8, Random::CHARS_UPPERS . Random::CHARS_DIGITS);
         $coupon = $this->couponFactory
             ->create()
             ->setCode($couponCode)
@@ -165,8 +175,45 @@ class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
 
         try {
             $this->couponRepositoryInterface->save($coupon);
+            return $couponCode;
         } catch (\Exception $e) {
             $this->logger->critical($e);
+        }
+        return false;
+    }
+
+    /**
+     * Update customer record with generated voucher code
+     * @param string couponCode
+     * @param int $customerId
+     * @return void
+     */
+    public function updateCustomer($couponCode, $customerId)
+    {
+        if ($saveCustomer = $this->getById($customerId)) {
+            $saveCustomer->setCustomAttribute('voucher', $couponCode);
+            try {
+                $this->customerRepositoryInterface->save($saveCustomer);
+                return true;
+            } catch (\Exception $e) {
+                $this->logger->critical($e);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get customer by Id.
+     * @param int $customerId
+     * @return \Magento\Customer\Model\Data\Customer
+     */
+    public function getById($customerId)
+    {
+        try {
+            return $this->customerRepositoryInterface->getById($customerId);
+        } catch (\Exception $e) {
+            $this->logger->critical($e);
+            return false;
         }
     }
 }

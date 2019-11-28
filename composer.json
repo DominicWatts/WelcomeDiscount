@@ -1,5 +1,5 @@
 {
-    "name": "dominicwatts/welcomediscount",
+    "name": "xigen/module-voucher",
     "description": "Generate customer specific coupon on registration",
     "type": "magento2-module",
     "license": "proprietary",
