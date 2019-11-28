@@ -1,12 +1,11 @@
 <?php
 
-
 namespace Xigen\Voucher\Block;
 
+use Magento\Customer\Model\Session;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\View\Element\Template\Context;
 use Xigen\Voucher\Helper\Email;
-use Magento\Framework\App\Request\Http;
-use Magento\Customer\Model\Session;
 
 /**
  * Block class

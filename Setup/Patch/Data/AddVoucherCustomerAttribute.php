@@ -1,14 +1,13 @@
 <?php
 
-
 namespace Xigen\Voucher\Setup\Patch\Data;
 
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetup;
+use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Customer\Setup\CustomerSetupFactory;
-use Magento\Customer\Setup\CustomerSetup;
-use Magento\Customer\Model\Customer;
 
 /**
  * AddVoucherCustomerAttribute class
