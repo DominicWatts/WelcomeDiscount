@@ -10,7 +10,7 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
 /**
- * AddVoucherCustomerAttribute class
+ * Setup class for adding Voucher Customer Attribute
  */
 class AddVoucherCustomerAttribute implements DataPatchInterface, PatchRevertableInterface
 {
