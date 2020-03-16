@@ -16,7 +16,7 @@ use Magento\SalesRule\Model\Service\CouponManagementService;
 use Psr\Log\LoggerInterface;
 
 /**
- * RegisterSuccess class
+ * Frontend observer class for Register Success event
  */
 class RegisterSuccess implements \Magento\Framework\Event\ObserverInterface
 {
